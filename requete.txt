@@ -1,0 +1,73 @@
+########## //TOP ACCIDENT BY COUNTRY \\ ##########
+prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos#>
+prefix ar:    <http://localhost:3333/>
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix owl:   <http://www.w3.org/2002/07/owl#>
+prefix gn:    <http://www.geonames.org/ontology#>
+prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+
+SELECT (count(?desc) as ?countDesc) ?countryName
+WHERE {
+		?y ar:city ?countryName.
+  		?y ar:description ?desc.
+
+	}
+GROUP BY ?countryName
+ORDER BY DESC(?countDesc)
+
+########## //Recuperer lat / long de tout les accidents avec le nom de la ville \\ ##########
+prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos#>
+prefix ar:    <http://localhost:3333/>
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix owl:   <http://www.w3.org/2002/07/owl#>
+prefix gn:    <http://www.geonames.org/ontology#>
+prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+
+SELECT ?lat ?long ?cityName
+WHERE {
+  		?z ar:GeographicInformation ?y.
+		?y ar:city ?cityName.
+  		?z ar:Coord ?i.
+		?i geo:lat ?lat.
+  		?i geo:long ?long.
+	}
+
+
+########## //Nombre d'accident par condition météo \\ ##########
+prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos#>
+prefix ar:    <http://localhost:3333/>
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix owl:   <http://www.w3.org/2002/07/owl#>
+prefix gn:    <http://www.geonames.org/ontology#>
+prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+
+SELECT (count(?y) as ?countMeteo) ?meteoName
+WHERE {
+  		?x ar:MeteoMetrics ?y.
+		?y ar:weatherCondition ?meteoName.
+
+
+	}
+GROUP BY ?meteoName
+ORDER BY DESC(?countMeteo)
+
+########## //Nombre d'accidents en fonction leurs sévérité et de leurs visibilité \\ ##########
+prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos#>
+prefix ar:    <http://localhost:3333/>
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix owl:   <http://www.w3.org/2002/07/owl#>
+prefix gn:    <http://www.geonames.org/ontology#>
+prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+prefix foaf:  <http://xmlns.com/foaf/0.1/>
+
+SELECT (count(?visibilityName) as ?countVisibility) ?severity ?visibilityName
+WHERE {
+  		?x ar:MeteoMetrics ?y.
+  		?x ar:severity ?severity.
+		?y ar:visibility ?visibilityName.
+	}
+GROUP BY ?severity ?visibilityName
+ORDER BY DESC(?countVisibility)

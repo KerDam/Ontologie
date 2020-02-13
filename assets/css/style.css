@@ -1,0 +1,25 @@
+.navbar-nav {
+    width: 100%;
+}
+
+.navbar-nav h1 {
+    margin: auto;
+}
+
+.marged {
+    margin-top: 50px;
+}
+
+.list-group {
+    margin-top: 50px;
+}
+
+.margined {
+    margin: auto;
+    text-align: center;
+    width: 100%;
+}
+
+#map {
+    height: 500px;
+}
