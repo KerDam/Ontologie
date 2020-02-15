@@ -5,7 +5,7 @@ let localisation = [];
 let res = {};
 let markerArray = {};
 
-function setupVisualisation(id){
+function setupVisualisation(id) {
     //switch used to know if we need to load a map or something else...
     switch (id) {
         case 1:
@@ -39,16 +39,16 @@ function setupVisualisation(id){
                 dataType: 'json',
                 data: {
                     queryLn: 'SPARQL',
-                    query: queryLatLong ,
+                    query: queryLatLong,
                     limit: 'none',
                     infer: 'true',
                     Accept: 'application/sparql-results+json'
                 },
-                success: function(data){
+                success: function (data) {
                     data.results.bindings.forEach(element => {
-                        if (!cityName.includes(element.cityName.value)){
+                        if (!cityName.includes(element.cityName.value)) {
                             cityName.push(element.cityName.value)
-                            localisation.push({"lat":element.lat.value,"long" :element.long.value, "name": element.cityName.value});
+                            localisation.push({ "lat": element.lat.value, "long": element.long.value, "name": element.cityName.value });
                         }
                     });
 
@@ -57,20 +57,20 @@ function setupVisualisation(id){
                         dataType: 'json',
                         data: {
                             queryLn: 'SPARQL',
-                            query: query1 ,
+                            query: query1,
                             limit: 'none',
                             infer: 'true',
                             Accept: 'application/sparql-results+json'
                         },
-                        success: function(data){
+                        success: function (data) {
                             let labels = [];
                             let dataz = [];
                             res = data;
                             //console.log(data.results.bindings);
-                            data.results.bindings.forEach(function(element,index,data) {
-                                localisation.forEach(function(elem, index2,localisation) {
-                                    if (elem.name == element.countryName.value){
-                                        localisation[index2] = {"lat":elem.lat,"long" :elem.long, "name": elem.name, "number": element.countDesc.value}
+                            data.results.bindings.forEach(function (element, index, data) {
+                                localisation.forEach(function (elem, index2, localisation) {
+                                    if (elem.name == element.countryName.value) {
+                                        localisation[index2] = { "lat": elem.lat, "long": elem.long, "name": elem.name, "number": element.countDesc.value }
                                     }
                                 })
                             });
@@ -86,7 +86,7 @@ function setupVisualisation(id){
                                     case (element.number <= 2):
                                         radiusSize = 2;
                                         break;
-                                    case (element.number <= 5 ):
+                                    case (element.number <= 5):
                                         radiusSize = 4;
                                         break;
                                     case (element.number <= 10):
@@ -104,14 +104,14 @@ function setupVisualisation(id){
                                     case (element.number > 300):
                                         radiusSize = 28;
                                         break;
-                                    }
-                                L.circleMarker([Number(element.lat),Number(element.long)], {
+                                }
+                                L.circleMarker([Number(element.lat), Number(element.long)], {
                                     renderer: myRenderer,
                                     radius: radiusSize
-                                }).addTo(map).bindPopup('Ville :  ' + element.name + ' Nombre d\'accidents' + element.number );
+                                }).addTo(map).bindPopup('Ville :  ' + element.name + ' Nombre d\'accidents' + element.number);
                             });
                         },
-                        error: function(error){
+                        error: function (error) {
                             console.log("Error:");
                             console.log(error);
                         }
@@ -125,7 +125,7 @@ function setupVisualisation(id){
                         }
                     });*/
                 },
-                error: function(error){
+                error: function (error) {
                     console.log("Error:");
                     console.log(error);
                 }
@@ -175,12 +175,12 @@ function setupVisualisation(id){
                 dataType: 'json',
                 data: {
                     queryLn: 'SPARQL',
-                    query: query2 ,
+                    query: query2,
                     limit: 'none',
                     infer: 'true',
                     Accept: 'application/sparql-results+json'
                 },
-                success: function(data){
+                success: function (data) {
                     let labels = [];
                     let dataz = [];
                     console.log(data.results.bindings);
@@ -211,7 +211,7 @@ function setupVisualisation(id){
                         }
                     });
                 },
-                error: function(error){
+                error: function (error) {
                     console.log("Error:");
                     console.log(error);
                 }
@@ -222,7 +222,7 @@ function setupVisualisation(id){
             $("#visu").show();
             $("#myChart").show();
             let query3 = "PREFIX ar: <http://localhost:3333/> \n\
-                SELECT (count(?visibilityName) as ?countVisibility) ?severity ?visibilityName \n\
+                SELECT  ?severity ?visibilityName (count(?visibilityName) as ?countVisibility) \n\
                 where {\n\
                        ?x ar:MeteoMetrics ?y. \n\
                        ?x ar:severity ?severity.\n\
@@ -236,40 +236,95 @@ function setupVisualisation(id){
                 dataType: 'json',
                 data: {
                     queryLn: 'SPARQL',
-                    query: query3 ,
+                    query: query3,
                     limit: 'none',
                     infer: 'true',
                     Accept: 'application/sparql-results+json'
                 },
-                success: function(data){
+                success: function (data) {
                     console.log(data.results.bindings);
+                    datas = []
                     data.results.bindings.forEach(element => {
-
+                        datas.push({
+                            v: element.severity.value,
+                            y: element.visibilityName.value,
+                            x: Math.log(element.countVisibility.value)
+                        })
                     });
 
-                    var ctx = document.getElementById('myChart').getContext('2d');
-                    var myChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Nombre d\'accidents',
-                                data: dataz,
-                                borderWidth: 1,
+                    console.log(datas);
+
+                    function colorize(opaque, context) {
+                        var value = context.dataset.data[context.dataIndex];
+                        switch (value.v) {
+                            case '1':
+                                return 'rgba(44,163,59,255)';
+                            case '2':
+                                return 'rgba(240,223,86,255)';
+                            case '3':
+                                return 'rgba(245,121,0,255)';
+                            case '4':
+                                return 'rgba(204,0,0,255)';
+                        }
+
+
+                    }
+
+                    var options = {
+                        aspectRatio: 1,
+                        legend: false,
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Log (Number of accidents)'
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Visibility'
+                                }
                             }]
                         },
-                        options: {
-                            scales: {
-                                yAxes: [{
-                                    ticks: {
-                                        beginAtZero: true
-                                    }
-                                }]
+                        elements: {
+                            point: {
+                                backgroundColor: colorize.bind(null, false),
+
+                                borderColor: colorize.bind(null, true),
+
+                                borderWidth: function (context) {
+                                    return Math.min(Math.max(1, context.datasetIndex + 1), 8);
+                                },
+
+                                hoverBackgroundColor: 'transparent',
+
+
+                                hoverBorderWidth: function (context) {
+                                    var value = context.dataset.data[context.dataIndex];
+                                    return 5;
+                                },
+
+                                radius: function (context) {
+                                    var value = context.dataset.data[context.dataIndex];
+                                    var size = context.chart.width;
+                                    var base = Math.log(value.v) / 30;
+                                    return 5;
+                                }
                             }
                         }
+                    };
+                    var ctx = document.getElementById('myChart').getContext('2d');
+
+                    var d = { datasets: [{ label: 'Severity', data: datas }] }
+
+                    var myChart = new Chart(ctx, {
+                        type: 'bubble',
+                        data: d,
+                        options: options
                     });
                 },
-                error: function(error){
+                error: function (error) {
                     console.log("Error:");
                     console.log(error);
                 }
